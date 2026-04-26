@@ -31,6 +31,16 @@ export const Route = createRootRoute({
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { name: "author", content: "Mizan" },
       { name: "theme-color", content: "#FAF7F2" },
+      { title: "Mizan" },
+      { property: "og:title", content: "Mizan" },
+      { name: "twitter:title", content: "Mizan" },
+      { name: "description", content: "Mizan helps users make smarter spending decisions with AI-powered nudges and behavioral science." },
+      { property: "og:description", content: "Mizan helps users make smarter spending decisions with AI-powered nudges and behavioral science." },
+      { name: "twitter:description", content: "Mizan helps users make smarter spending decisions with AI-powered nudges and behavioral science." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/39b877b3-c352-42d8-ad58-934f7a001829/id-preview-91613852--39bab697-3242-449b-9f0c-d312c8e65f76.lovable.app-1777232099319.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/39b877b3-c352-42d8-ad58-934f7a001829/id-preview-91613852--39bab697-3242-449b-9f0c-d312c8e65f76.lovable.app-1777232099319.png" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:type", content: "website" },
     ],
     links: [
       {
