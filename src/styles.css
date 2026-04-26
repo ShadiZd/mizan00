@@ -1,15 +1,15 @@
-@import "tailwindcss" source(none);
-@source "../src";
-@import "tw-animate-css";
-
-@custom-variant dark (&:is(.dark *));
-
 /* Mizan — "Balance" in Arabic.
  * Warm parchment, brass, deep teal. Composed, considered, grounded.
  * Fonts: Fraunces (display serif), General Sans (geometric sans).
  */
 @import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&display=swap");
 @import url("https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600&display=swap");
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
 
 @theme inline {
   --font-display: "Fraunces", ui-serif, Georgia, serif;
