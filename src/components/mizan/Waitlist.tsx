@@ -21,12 +21,8 @@ export function Waitlist() {
           </span>
         </div>
         <h2 className="text-balance font-display text-4xl font-medium tracking-tight text-foreground md:text-5xl">
-          Find your balance.
+          Find your balance early.
         </h2>
-        <p className="mx-auto mt-5 max-w-xl text-lg text-muted-foreground">
-          Join the waitlist for private beta. We're inviting new members each week,
-          slowly and on purpose.
-        </p>
 
         <form
           onSubmit={submit}
@@ -48,12 +44,12 @@ export function Waitlist() {
             disabled={state !== "idle"}
             className="inline-flex h-12 items-center justify-center rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground transition-all duration-200 ease-[var(--ease-considered)] hover:-translate-y-0.5 hover:shadow-[var(--shadow-brass)] disabled:opacity-70"
           >
-            {state === "done" ? "You're on the list ✓" : state === "submitting" ? "Adding…" : "Request access"}
+            {state === "done" ? "You're on the list ✓" : state === "submitting" ? "Adding…" : "Join Waitlist"}
           </button>
         </form>
 
         <p className="mt-5 text-xs text-muted-foreground">
-          No spam. One thoughtful update per month.
+          No spam. Just early access.
         </p>
       </div>
     </section>

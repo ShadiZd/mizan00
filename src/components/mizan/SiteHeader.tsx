@@ -7,14 +7,15 @@ export function SiteHeader() {
         <MizanLogo className="text-foreground" />
         <nav className="hidden items-center gap-8 text-sm text-muted-foreground md:flex">
           <a href="#how" className="transition-colors hover:text-foreground">How it works</a>
-          <a href="#science" className="transition-colors hover:text-foreground">The science</a>
-          <a href="#principles" className="transition-colors hover:text-foreground">Principles</a>
+          <a href="#features" className="transition-colors hover:text-foreground">Features</a>
+          <a href="#science" className="transition-colors hover:text-foreground">Science</a>
+          <a href="#compare" className="transition-colors hover:text-foreground">Compare</a>
         </nav>
         <a
           href="#waitlist"
           className="inline-flex h-10 items-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground shadow-sm transition-all duration-200 ease-[var(--ease-considered)] hover:shadow-[var(--shadow-brass)] hover:-translate-y-px"
         >
-          Get early access
+          Join Waitlist
         </a>
       </div>
     </header>

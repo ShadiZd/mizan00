@@ -1,9 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/mizan/SiteHeader";
 import { Hero } from "@/components/mizan/Hero";
-import { PauseMoment } from "@/components/mizan/PauseMoment";
+import { Problem } from "@/components/mizan/Problem";
+import { HowItWorks } from "@/components/mizan/HowItWorks";
+import { Features } from "@/components/mizan/Features";
 import { Science } from "@/components/mizan/Science";
-import { Principles } from "@/components/mizan/Principles";
+import { Compare } from "@/components/mizan/Compare";
 import { Waitlist } from "@/components/mizan/Waitlist";
 import { SiteFooter } from "@/components/mizan/SiteFooter";
 
@@ -11,21 +13,20 @@ export const Route = createFileRoute("/")({
   component: Index,
   head: () => ({
     meta: [
-      { title: "Mizan — Pause before you spend" },
+      { title: "Mizan — Pause Before You Spend" },
       {
         name: "description",
         content:
-          "Mizan is a behavioral fintech app that uses smart nudges and behavioral science to help you make better spending decisions — before you spend, not after.",
+          "Mizan nudges you in the moment — not after the receipt. Behavioral fintech that helps you decide before you spend.",
       },
-      { property: "og:title", content: "Mizan — Pause before you spend" },
+      { property: "og:title", content: "Mizan — Pause Before You Spend" },
       {
         property: "og:description",
-        content:
-          "The quiet voice between your impulse and your wallet. Behavioral nudges that help you find balance.",
+        content: "Behavioral nudges, in the moment. Find your balance early.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Mizan — Pause before you spend" },
+      { name: "twitter:title", content: "Mizan — Pause Before You Spend" },
       {
         name: "twitter:description",
         content:
@@ -41,9 +42,11 @@ function Index() {
       <SiteHeader />
       <main>
         <Hero />
-        <PauseMoment />
+        <Problem />
+        <HowItWorks />
+        <Features />
         <Science />
-        <Principles />
+        <Compare />
         <Waitlist />
       </main>
       <SiteFooter />
