@@ -4,7 +4,7 @@ import { Hero } from "@/components/mizan/Hero";
 import { Problem } from "@/components/mizan/Problem";
 import { Process } from "@/components/mizan/Process";
 import { Architecture } from "@/components/mizan/Architecture";
-import { Features } from "@/components/mizan/Features";
+import { FeatureLab } from "@/components/mizan/FeatureLab";
 import { Science } from "@/components/mizan/Science";
 import { Compare } from "@/components/mizan/Compare";
 import { Personas } from "@/components/mizan/Personas";
@@ -47,7 +47,7 @@ function Index() {
         <Problem />
         <Process />
         <Architecture />
-        <Features />
+        <FeatureLab />
         <Science />
         <Compare />
         <Personas />
