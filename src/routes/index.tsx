@@ -2,10 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/mizan/SiteHeader";
 import { Hero } from "@/components/mizan/Hero";
 import { Problem } from "@/components/mizan/Problem";
-import { HowItWorks } from "@/components/mizan/HowItWorks";
+import { Process } from "@/components/mizan/Process";
+import { Architecture } from "@/components/mizan/Architecture";
 import { Features } from "@/components/mizan/Features";
 import { Science } from "@/components/mizan/Science";
 import { Compare } from "@/components/mizan/Compare";
+import { Personas } from "@/components/mizan/Personas";
 import { Waitlist } from "@/components/mizan/Waitlist";
 import { SiteFooter } from "@/components/mizan/SiteFooter";
 
@@ -43,10 +45,12 @@ function Index() {
       <main>
         <Hero />
         <Problem />
-        <HowItWorks />
+        <Process />
+        <Architecture />
         <Features />
         <Science />
         <Compare />
+        <Personas />
         <Waitlist />
       </main>
       <SiteFooter />
