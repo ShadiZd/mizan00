@@ -8,7 +8,7 @@ import { PrivacyDashboard } from "./features/PrivacyDashboard";
 
 export function FeatureLab() {
   return (
-    <section id="lab" className="border-y border-border bg-muted/30 py-24 md:py-32">
+    <section id="features" className="scroll-mt-20 border-y border-border bg-muted/30 py-24 md:py-32">
       <div className="mx-auto max-w-6xl px-6">
         <div className="mx-auto max-w-2xl text-center">
           <span className="text-xs font-medium tracking-[0.2em] text-accent uppercase">
