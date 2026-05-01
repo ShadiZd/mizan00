@@ -1,0 +1,81 @@
+"""
+platforms.py — Mizan Investment Platforms Database
+
+Static registry of supported investment platforms.
+Used by investment_engine.py to match platforms to user profiles.
+"""
+
+investment_platforms = [
+    {
+        "name": "Wahed Invest",
+        "description": "Shariah-compliant halal investing",
+        "min_investment_sar": 100,
+        "risk_levels": ["low", "medium"],
+        "regions": ["SA", "AE", "US", "UK", "global"],
+        "shariah_compliant": True,
+        "asset_types": ["ETFs", "sukuk", "gold"],
+        "app_store_url": "https://wahed.com",
+        "deep_link": "wahed://invest",
+        "logo": "wahed.png",
+    },
+    {
+        "name": "Sarwa",
+        "description": "Automated passive investing, low fees",
+        "min_investment_sar": 500,
+        "risk_levels": ["low", "medium", "high"],
+        "regions": ["AE", "global"],
+        "shariah_compliant": False,
+        "asset_types": ["ETFs", "stocks", "bonds"],
+        "app_store_url": "https://sarwa.co",
+        "deep_link": "sarwa://invest",
+        "logo": "sarwa.png",
+    },
+    {
+        "name": "Baraka",
+        "description": "US stocks and ETFs, fractional shares",
+        "min_investment_sar": 50,
+        "risk_levels": ["medium", "high"],
+        "regions": ["AE", "global"],
+        "shariah_compliant": False,
+        "asset_types": ["US stocks", "ETFs", "fractional shares"],
+        "app_store_url": "https://getbaraka.com",
+        "deep_link": "baraka://invest",
+        "logo": "baraka.png",
+    },
+    {
+        "name": "Aghaz Invest",
+        "description": "Saudi-focused halal micro-investing",
+        "min_investment_sar": 10,
+        "risk_levels": ["low", "medium"],
+        "regions": ["SA"],
+        "shariah_compliant": True,
+        "asset_types": ["mutual funds", "sukuk"],
+        "app_store_url": "https://aghazinvest.com",
+        "deep_link": "aghaz://invest",
+        "logo": "aghaz.png",
+    },
+    {
+        "name": "Nester",
+        "description": "Real estate fractional investment",
+        "min_investment_sar": 1000,
+        "risk_levels": ["medium", "high"],
+        "regions": ["SA", "AE"],
+        "shariah_compliant": True,
+        "asset_types": ["real estate", "REITS"],
+        "app_store_url": "https://nester.sa",
+        "deep_link": "nester://invest",
+        "logo": "nester.png",
+    },
+    {
+        "name": "Sharia Portfolio Global",
+        "description": "Globally diversified shariah portfolios",
+        "min_investment_sar": 200,
+        "risk_levels": ["low", "medium", "high"],
+        "regions": ["SA", "global"],
+        "shariah_compliant": True,
+        "asset_types": ["global ETFs", "sukuk", "stocks"],
+        "app_store_url": "https://shariaportfolio.com",
+        "deep_link": "shariaportfolio://invest",
+        "logo": "sharia_portfolio.png",
+    },
+]

@@ -1,0 +1,13 @@
+﻿fastapi
+uvicorn[standard]
+pydantic
+pytest
+requests
+python-jose[cryptography]
+passlib[bcrypt]
+bcrypt==4.0.1
+psycopg2-binary
+slowapi
+python-dotenv
+anthropic
+httpx
