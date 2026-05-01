@@ -91,27 +91,30 @@
     from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
   }
-  @keyframes sweep {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
-  }
-  @keyframes word-rise {
-    from { opacity: 0; transform: translateY(0.6em); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes settle {
-    0% { transform: rotate(-12deg); }
-    60% { transform: rotate(4deg); }
-    80% { transform: rotate(-2deg); }
-    100% { transform: rotate(0deg); }
-  }
-  @keyframes cta-pulse {
-    0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--accent) 40%, transparent); }
-    50% { box-shadow: 0 0 0 10px color-mix(in oklab, var(--accent) 0%, transparent); }
-  }
-  @keyframes dash {
-    to { stroke-dashoffset: 0; }
-  }
+}
+
+/* Global keyframes — referenced from inline style.animation strings.
+ * These must live OUTSIDE @theme so they're emitted unconditionally. */
+@keyframes sweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+@keyframes word-rise {
+  from { opacity: 0; transform: translateY(0.6em); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes settle {
+  0% { transform: rotate(-12deg); }
+  60% { transform: rotate(4deg); }
+  80% { transform: rotate(-2deg); }
+  100% { transform: rotate(0deg); }
+}
+@keyframes cta-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--accent) 40%, transparent); }
+  50% { box-shadow: 0 0 0 10px color-mix(in oklab, var(--accent) 0%, transparent); }
+}
+@keyframes dash {
+  to { stroke-dashoffset: 0; }
 }
 
 :root {
