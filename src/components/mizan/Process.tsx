@@ -103,7 +103,7 @@ function Step({ idx, total }: { idx: number; total: number }) {
       </div>
 
       {/* Content */}
-      <div className="md:mt-6 md:flex md:flex-col md:items-center">
+      <div className="md:mt-6 md:flex-col md:flex md:items-center justify-center mb-[23px]">
         <div className="md:order-2">
           <h3 className="font-display text-xl font-medium text-foreground md:text-2xl">
             {s.title}
