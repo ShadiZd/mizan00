@@ -1,29 +1,87 @@
-/* Feature 3 — Monthly Spending Contracts
- * Cap + penalty + simulated spending. Bar turns amber at 80%, red at 100%.
- * Penalty animation, overdraft cap, mid-month change notice.
+/* Feature 3 — Monthly Spending Contracts.
+ * Loads contract from api.ts; posts updates on cap/penalty changes.
  */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LayeredCard } from "./LayeredCard";
-
-const BALANCE = 240;
+import { SkeletonStack, ErrorRetry } from "./Skeleton";
+import { useAsync } from "@/hooks/use-async";
+import { getSpendingContracts, getUserBalance, postContractSetup } from "@/lib/api";
+import { setState } from "@/lib/state";
 
 export function SpendingContract() {
-  const [cap, setCap] = useState(800);
-  const [penalty, setPenalty] = useState(40);
+  const contractQ = useAsync(getSpendingContracts);
+  const balanceQ = useAsync(getUserBalance);
+
+  const [cap, setCap] = useState<number | null>(null);
+  const [penalty, setPenalty] = useState<number | null>(null);
   const [confirmedPenalty, setConfirmedPenalty] = useState(false);
-  const [spent, setSpent] = useState(620);
+  const [spent, setSpent] = useState<number | null>(null);
   const [penaltyApplied, setPenaltyApplied] = useState(false);
   const [appliedAmount, setAppliedAmount] = useState(0);
   const [showMidNotice, setShowMidNotice] = useState(false);
+
+  useEffect(() => {
+    if (contractQ.data) {
+      setState("contract", contractQ.data);
+      if (cap === null) setCap(contractQ.data.cap);
+      if (penalty === null) setPenalty(contractQ.data.penalty);
+      if (spent === null) setSpent(contractQ.data.spentThisMonth);
+      setConfirmedPenalty(contractQ.data.penaltyConfirmed);
+    }
+  }, [contractQ.data, cap, penalty, spent]);
+
+  const loading = contractQ.loading || balanceQ.loading;
+  const error = contractQ.error || balanceQ.error;
+  const balance = balanceQ.data ?? 240;
+
+  if (error) {
+    return (
+      <LayeredCard
+        index="03"
+        title="Monthly Spending Contract"
+        tagline="Set a cap. Agree to a consequence. Stay honest."
+        layers={{
+          presentation: "Live progress bar, amber/red warning states, and a penalty deduction animation.",
+          logic: "Tracks spending vs. cap in real time, applies penalty when exceeded, caps penalty at available balance.",
+          data: "Cap, penalty, and spending history stored entirely on-device.",
+        }}
+      >
+        <ErrorRetry
+          onRetry={() => {
+            void contractQ.reload();
+            void balanceQ.reload();
+          }}
+        />
+      </LayeredCard>
+    );
+  }
+
+  if (loading || cap === null || penalty === null || spent === null) {
+    return (
+      <LayeredCard
+        index="03"
+        title="Monthly Spending Contract"
+        tagline="Set a cap. Agree to a consequence. Stay honest."
+        layers={{
+          presentation: "Live progress bar, amber/red warning states, and a penalty deduction animation.",
+          logic: "Tracks spending vs. cap in real time, applies penalty when exceeded, caps penalty at available balance.",
+          data: "Cap, penalty, and spending history stored entirely on-device.",
+        }}
+      >
+        <SkeletonStack rows={4} />
+      </LayeredCard>
+    );
+  }
 
   const pct = Math.min(150, Math.round((spent / cap) * 100));
   const tone = pct >= 100 ? "destructive" : pct >= 80 ? "accent" : "primary";
 
   function bump(amount: number) {
+    if (cap === null || spent === null || penalty === null) return;
     const newSpent = spent + amount;
     setSpent(newSpent);
     if (newSpent > cap && !penaltyApplied && confirmedPenalty) {
-      const charged = Math.min(penalty, BALANCE);
+      const charged = Math.min(penalty, balance);
       setAppliedAmount(charged);
       setPenaltyApplied(true);
     }
@@ -37,8 +95,14 @@ export function SpendingContract() {
 
   function changeCap(v: number) {
     setCap(v);
+    if (penalty !== null) void postContractSetup(v, penalty);
     setShowMidNotice(true);
     setTimeout(() => setShowMidNotice(false), 3500);
+  }
+
+  function changePenalty(v: number) {
+    setPenalty(v);
+    if (cap !== null) void postContractSetup(cap, v);
   }
 
   return (
@@ -54,9 +118,7 @@ export function SpendingContract() {
     >
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="rounded-2xl bg-muted/40 p-4">
-          <div className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-            Monthly cap
-          </div>
+          <div className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Monthly cap</div>
           <div className="mt-1 flex items-baseline gap-1">
             <span className="text-sm text-muted-foreground">$</span>
             <input
@@ -89,31 +151,29 @@ export function SpendingContract() {
               type="number"
               min={5}
               value={penalty}
-              onChange={(e) => setPenalty(Math.max(5, Number(e.target.value) || 5))}
+              onChange={(e) => changePenalty(Math.max(5, Number(e.target.value) || 5))}
               className="w-full bg-transparent font-display text-xl font-medium tabular text-foreground focus:outline-none"
             />
           </div>
         </label>
       </div>
 
-      {/* Progress */}
+      {/* Progress — green → amber → red */}
       <div className="mt-6">
         <div className="flex items-center justify-between text-xs">
           <span className="uppercase tracking-[0.18em] text-muted-foreground">This month</span>
-          <span className={`font-display tabular text-lg ${
-            tone === "destructive" ? "text-destructive" : tone === "accent" ? "text-accent" : "text-foreground"
-          }`}>
+          <span
+            className={`font-display tabular text-lg ${
+              tone === "destructive" ? "text-destructive" : tone === "accent" ? "text-accent" : "text-foreground"
+            }`}
+          >
             ${spent} <span className="text-muted-foreground">/ ${cap}</span>
           </span>
         </div>
         <div className="mt-2 h-3 overflow-hidden rounded-full bg-muted">
           <div
-            className={`h-full transition-all duration-500 ease-[var(--ease-considered)] ${
-              tone === "destructive"
-                ? "bg-destructive"
-                : tone === "accent"
-                  ? "bg-accent"
-                  : "bg-primary"
+            className={`h-full transition-all duration-700 ease-[var(--ease-considered)] ${
+              tone === "destructive" ? "bg-destructive" : tone === "accent" ? "bg-accent" : "bg-primary"
             }`}
             style={{ width: `${Math.min(100, pct)}%` }}
           />
@@ -148,7 +208,9 @@ export function SpendingContract() {
           <div className="mt-1 text-xs text-muted-foreground">
             You agreed to this. It's working.
             {appliedAmount < penalty && (
-              <span className="mt-1 block">Penalty capped at available balance (${BALANCE}).</span>
+              <span className="mt-1 block">
+                Penalty capped at available balance (${balance}).
+              </span>
             )}
           </div>
         </div>

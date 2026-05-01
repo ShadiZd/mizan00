@@ -1,22 +1,31 @@
-/* Feature 6 — On-Device Privacy
- * Data-flow map, status indicators, simulated export.
+/* Feature 6 — On-Device Privacy.
+ * Export goes through api.ts. Animated dashed lines + hard cloud stop.
  */
 import { useState } from "react";
 import { Smartphone, Cpu, CheckCircle2, ShieldCheck, X, Download } from "lucide-react";
 import { LayeredCard } from "./LayeredCard";
+import { ErrorRetry } from "./Skeleton";
+import { exportUserData } from "@/lib/api";
 
 export function PrivacyDashboard() {
   const [exporting, setExporting] = useState(false);
   const [done, setDone] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
 
-  function exportData() {
+  async function handleExport() {
+    setErr(null);
     setDone(false);
     setExporting(true);
-    setTimeout(() => {
-      setExporting(false);
+    try {
+      const res = await exportUserData();
       setDone(true);
+      void res;
       setTimeout(() => setDone(false), 2200);
-    }, 1400);
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Export failed.");
+    } finally {
+      setExporting(false);
+    }
   }
 
   return (
@@ -30,13 +39,13 @@ export function PrivacyDashboard() {
         data: "Encrypted with device-only keys. Wiped completely on uninstall.",
       }}
     >
-      {/* Flow map */}
+      {/* Flow map with animated dashed lines */}
       <div className="rounded-2xl border border-border bg-muted/30 p-5">
         <div className="grid grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-3">
           <Node Icon={Smartphone} label="Your phone" tone="primary" />
-          <Arrow />
+          <DashedArrow />
           <Node Icon={Cpu} label="Mizan analysis" tone="accent" />
-          <Arrow />
+          <DashedArrow />
           <Node Icon={CheckCircle2} label="Decision" tone="primary" />
         </div>
 
@@ -51,17 +60,19 @@ export function PrivacyDashboard() {
 
       {/* Statuses */}
       <ul className="mt-5 grid gap-2 sm:grid-cols-3">
-        {[
-          "No data sent to servers",
-          "Local encryption active",
-          "Export your data anytime",
-        ].map((s) => (
+        {["No data sent to servers", "Local encryption active", "Export your data anytime"].map((s) => (
           <li key={s} className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-xs">
             <ShieldCheck className="h-4 w-4 text-primary" strokeWidth={1.8} />
             <span className="text-foreground">{s}</span>
           </li>
         ))}
       </ul>
+
+      {err && (
+        <div className="mt-4">
+          <ErrorRetry message="Export failed. Tap to retry." onRetry={handleExport} />
+        </div>
+      )}
 
       {/* Export */}
       <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-muted/40 px-4 py-3">
@@ -73,7 +84,7 @@ export function PrivacyDashboard() {
               : "Take everything with you, anytime."}
         </div>
         <button
-          onClick={exportData}
+          onClick={handleExport}
           disabled={exporting}
           className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-medium text-primary-foreground transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-brass)] disabled:opacity-70"
         >
@@ -110,10 +121,22 @@ function Node({
   );
 }
 
-function Arrow() {
+function DashedArrow() {
   return (
     <div className="flex items-center justify-center">
-      <div className="h-px w-full min-w-[1.5rem] bg-gradient-to-r from-accent/30 via-accent to-accent/30" />
+      <svg width="40" height="2" viewBox="0 0 40 2" className="overflow-visible">
+        <line
+          x1="0"
+          y1="1"
+          x2="40"
+          y2="1"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeDasharray="4 3"
+          className="text-accent"
+          style={{ animation: "sweep 2.4s linear infinite" }}
+        />
+      </svg>
     </div>
   );
 }

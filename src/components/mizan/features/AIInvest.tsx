@@ -1,33 +1,23 @@
-/* Feature 5 — AI Investment Suggestions
- * Locked card + countdown until 30 days, otherwise reveal 3 matched cards.
- * Edge cases: contract exceeded, no savings.
+/* Feature 5 — AI Investment Suggestions.
+ * Loads suggestions via api.ts. Shimmer sweep on unlock reveal.
  */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LayeredCard } from "./LayeredCard";
+import { SkeletonStack, ErrorRetry } from "./Skeleton";
+import { useAsync } from "@/hooks/use-async";
+import { getInvestmentSuggestions } from "@/lib/api";
+import { setState } from "@/lib/state";
 
-type State = "locked" | "ready" | "no-savings" | "contract-exceeded";
-
-const SUGGESTIONS = [
-  {
-    type: "Low-Risk Index Fund",
-    why: "Based on your steady 12% monthly savings rate.",
-    ret: "~7% / year · roughly $84 on your current savings",
-  },
-  {
-    type: "Short-Term Bond ETF",
-    why: "Fits your low-volatility preference.",
-    ret: "~4% / year · roughly $48",
-  },
-  {
-    type: "Diversified Equity",
-    why: "Matches your 18-month horizon.",
-    ret: "~9% / year · roughly $108",
-  },
-];
+type DemoState = "locked" | "ready" | "no-savings" | "contract-exceeded";
 
 export function AIInvest() {
-  const [state, setState] = useState<State>("locked");
+  const sQ = useAsync(getInvestmentSuggestions);
+  const [demo, setDemo] = useState<DemoState>("ready");
   const [days, setDays] = useState(18);
+
+  useEffect(() => {
+    if (sQ.data) setState("investments", sQ.data);
+  }, [sQ.data]);
 
   const ringPct = Math.min(100, (days / 30) * 100);
 
@@ -42,15 +32,15 @@ export function AIInvest() {
         data: "Patterns analyzed on-device. Only an outbound link goes to the provider — Mizan never executes trades.",
       }}
     >
-      {/* State switcher (demo control) */}
+      {/* State switcher */}
       <div className="mb-5 flex flex-wrap items-center gap-2 text-[11px]">
         <span className="uppercase tracking-[0.18em] text-muted-foreground">Try state:</span>
-        {(["locked", "ready", "no-savings", "contract-exceeded"] as State[]).map((s) => (
+        {(["locked", "ready", "no-savings", "contract-exceeded"] as DemoState[]).map((s) => (
           <button
             key={s}
-            onClick={() => setState(s)}
+            onClick={() => setDemo(s)}
             className={`rounded-full border px-2.5 py-1 transition-colors ${
-              state === s
+              demo === s
                 ? "border-accent bg-accent-soft/50 text-accent-foreground"
                 : "border-border bg-card text-muted-foreground hover:text-foreground"
             }`}
@@ -60,7 +50,7 @@ export function AIInvest() {
         ))}
       </div>
 
-      {state === "locked" && (
+      {demo === "locked" && (
         <div className="grid place-items-center rounded-2xl border border-border bg-muted/30 px-6 py-8 text-center">
           <div className="relative h-24 w-24">
             <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
@@ -99,32 +89,55 @@ export function AIInvest() {
         </div>
       )}
 
-      {state === "ready" && (
-        <ul className="grid gap-3 sm:grid-cols-3">
-          {SUGGESTIONS.map((s) => (
-            <li
-              key={s.type}
-              className="flex flex-col rounded-2xl border border-border bg-card p-4 transition-colors hover:border-accent"
-            >
-              <div className="text-[10px] uppercase tracking-[0.18em] text-accent">Match</div>
-              <div className="mt-1 font-display text-base font-medium text-foreground">
-                {s.type}
-              </div>
-              <p className="mt-2 text-xs text-muted-foreground">{s.why}</p>
-              <div className="mt-3 text-xs font-medium text-primary">{s.ret}</div>
-              <a
-                href="#"
-                onClick={(e) => e.preventDefault()}
-                className="mt-3 inline-flex w-fit items-center text-[11px] font-medium text-accent hover:underline"
-              >
-                Learn more →
-              </a>
-            </li>
-          ))}
-        </ul>
+      {demo === "ready" && (
+        <>
+          {sQ.error && <ErrorRetry onRetry={() => void sQ.reload()} />}
+          {!sQ.error && sQ.loading && (
+            <div className="grid gap-3 sm:grid-cols-3">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="rounded-2xl border border-border bg-card p-4">
+                  <SkeletonStack rows={3} />
+                </div>
+              ))}
+            </div>
+          )}
+          {!sQ.error && !sQ.loading && sQ.data && (
+            <ul className="grid gap-3 sm:grid-cols-3">
+              {sQ.data.map((s, i) => (
+                <li
+                  key={s.id}
+                  className="relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card p-4 transition-colors hover:border-accent"
+                  style={{ animation: `word-rise 0.6s var(--ease-considered) ${i * 0.15}s both` }}
+                >
+                  {/* Shimmer sweep on unlock */}
+                  <span
+                    className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-accent/20 to-transparent"
+                    style={{ animation: `sweep 1.4s ease-out ${i * 0.15}s 1 both` }}
+                    aria-hidden
+                  />
+                  <div className="relative">
+                    <div className="text-[10px] uppercase tracking-[0.18em] text-accent">Match</div>
+                    <div className="mt-1 font-display text-base font-medium text-foreground">
+                      {s.type}
+                    </div>
+                    <p className="mt-2 text-xs text-muted-foreground">{s.why}</p>
+                    <div className="mt-3 text-xs font-medium text-primary">{s.expectedReturn}</div>
+                    <a
+                      href="#"
+                      onClick={(e) => e.preventDefault()}
+                      className="mt-3 inline-flex w-fit items-center text-[11px] font-medium text-accent hover:underline"
+                    >
+                      Learn more →
+                    </a>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
       )}
 
-      {state === "no-savings" && (
+      {demo === "no-savings" && (
         <div className="rounded-2xl border border-border bg-muted/30 p-6 text-center">
           <div className="font-display text-base font-medium text-foreground">
             Start saving first to unlock this.
@@ -135,7 +148,7 @@ export function AIInvest() {
         </div>
       )}
 
-      {state === "contract-exceeded" && (
+      {demo === "contract-exceeded" && (
         <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-6 text-center">
           <div className="font-display text-base font-medium text-destructive">
             Suggestions paused — focus on your contract first.
