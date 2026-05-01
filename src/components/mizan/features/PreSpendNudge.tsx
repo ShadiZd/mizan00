@@ -7,7 +7,9 @@ import { LayeredCard } from "./LayeredCard";
 import { SkeletonStack, ErrorRetry } from "./Skeleton";
 import { useAsync } from "@/hooks/use-async";
 import { getUser, getSpendingContracts, postNudgeDecision } from "@/lib/api";
+import type { ProcessTransactionResponse } from "@/lib/api";
 import { setState } from "@/lib/state";
+import { useMizan } from "@/hooks/useMizan";
 
 const PURCHASE_AMOUNT = 128.4;
 
@@ -15,6 +17,8 @@ export function PreSpendNudge() {
   const userQ = useAsync(getUser);
   const contractQ = useAsync(getSpendingContracts);
 
+  const { processTransaction } = useMizan();
+  const [nudgeResult, setNudgeResult] = useState<ProcessTransactionResponse | null>(null);
   const [hourly, setHourly] = useState<number | null>(null);
   const [overlay, setOverlay] = useState(false);
   const [confirmStreak, setConfirmStreak] = useState(0);
@@ -39,13 +43,25 @@ export function PreSpendNudge() {
   const cap = contractQ.data?.cap ?? 800;
   const spent = contractQ.data?.spentThisMonth ?? 0;
 
-  const hours = useMemo(() => (PURCHASE_AMOUNT / hourlyRate).toFixed(1), [hourlyRate]);
+  const localHours = useMemo(() => (PURCHASE_AMOUNT / hourlyRate).toFixed(1), [hourlyRate]);
+  const hours = nudgeResult?.real_cost_hours?.toFixed(1) ?? localHours;
   const projectedTotal = spent + PURCHASE_AMOUNT;
-  const pctAfter = Math.min(100, Math.round((projectedTotal / cap) * 100));
+  const localPct = Math.min(100, Math.round((projectedTotal / cap) * 100));
+  const pctAfter = nudgeResult?.nudge?.progress
+    ? Math.min(100, Math.round(nudgeResult.nudge.progress.pct_used))
+    : localPct;
 
-  function handlePayNow() {
+  async function handlePayNow() {
     setOutcome(null);
     setOverlay(true);
+    const result = await processTransaction({
+      description: "Wireless headphones",
+      amount: PURCHASE_AMOUNT,
+      hourly_wage: hourlyRate,
+      contract: null,
+      transaction_history: [],
+    });
+    if (result) setNudgeResult(result);
   }
 
   async function handleConfirm() {

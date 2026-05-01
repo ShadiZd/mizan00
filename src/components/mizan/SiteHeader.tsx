@@ -1,4 +1,5 @@
 import { MizanLogo } from "./Logo";
+import { BackendStatus } from "@/components/BackendStatus";
 
 export function SiteHeader() {
   return (
@@ -12,12 +13,15 @@ export function SiteHeader() {
           <a href="#science" className="transition-colors hover:text-foreground">Science</a>
           <a href="#compare" className="transition-colors hover:text-foreground">Compare</a>
         </nav>
-        <a
-          href="#waitlist"
-          className="inline-flex h-10 items-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground shadow-sm transition-all duration-200 ease-[var(--ease-considered)] hover:shadow-[var(--shadow-brass)] hover:-translate-y-px"
-        >
-          Join Waitlist
-        </a>
+        <div className="flex items-center gap-4">
+          <BackendStatus />
+          <a
+            href="#waitlist"
+            className="inline-flex h-10 items-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground shadow-sm transition-all duration-200 ease-[var(--ease-considered)] hover:shadow-[var(--shadow-brass)] hover:-translate-y-px"
+          >
+            Join Waitlist
+          </a>
+        </div>
       </div>
     </header>
   );

@@ -1,23 +1,37 @@
 /* Feature 5 — AI Investment Suggestions.
- * Loads suggestions via api.ts. Shimmer sweep on unlock reveal.
+ * Loads investment platforms from the backend via useMizan().getPlatforms().
+ * Falls back to mock data when the backend is offline.
  */
 import { useEffect, useState } from "react";
 import { LayeredCard } from "./LayeredCard";
 import { SkeletonStack, ErrorRetry } from "./Skeleton";
-import { useAsync } from "@/hooks/use-async";
-import { getInvestmentSuggestions } from "@/lib/api";
-import { setState } from "@/lib/state";
+import { useMizan } from "@/hooks/useMizan";
+import { mizanAPI } from "@/lib/api";
+import type { Platform } from "@/lib/api";
 
 type DemoState = "locked" | "ready" | "no-savings" | "contract-exceeded";
 
 export function AIInvest() {
-  const sQ = useAsync(getInvestmentSuggestions);
+  const { getPlatforms } = useMizan();
+  const [platforms, setPlatforms] = useState<Platform[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [demo, setDemo] = useState<DemoState>("ready");
   const [days, setDays] = useState(18);
 
+  const fetchPlatforms = () => {
+    setLoading(true);
+    setLoadError(false);
+    getPlatforms()
+      .then(setPlatforms)
+      .catch(() => setLoadError(true))
+      .finally(() => setLoading(false));
+  };
+
   useEffect(() => {
-    if (sQ.data) setState("investments", sQ.data);
-  }, [sQ.data]);
+    fetchPlatforms();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const ringPct = Math.min(100, (days / 30) * 100);
 
@@ -91,8 +105,8 @@ export function AIInvest() {
 
       {demo === "ready" && (
         <>
-          {sQ.error && <ErrorRetry onRetry={() => void sQ.reload()} />}
-          {!sQ.error && sQ.loading && (
+          {loadError && <ErrorRetry onRetry={fetchPlatforms} />}
+          {!loadError && loading && (
             <div className="grid gap-3 sm:grid-cols-3">
               {[0, 1, 2].map((i) => (
                 <div key={i} className="rounded-2xl border border-border bg-card p-4">
@@ -101,11 +115,11 @@ export function AIInvest() {
               ))}
             </div>
           )}
-          {!sQ.error && !sQ.loading && sQ.data && (
+          {!loadError && !loading && platforms.length > 0 && (
             <ul className="grid gap-3 sm:grid-cols-3">
-              {sQ.data.map((s, i) => (
+              {platforms.slice(0, 6).map((p, i) => (
                 <li
-                  key={s.id}
+                  key={p.name}
                   className="relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card p-4 transition-colors hover:border-accent"
                   style={{ animation: `word-rise 0.6s var(--ease-considered) ${i * 0.15}s both` }}
                 >
@@ -115,20 +129,31 @@ export function AIInvest() {
                     style={{ animation: `sweep 1.4s ease-out ${i * 0.15}s 1 both` }}
                     aria-hidden
                   />
-                  <div className="relative">
-                    <div className="text-[10px] uppercase tracking-[0.18em] text-accent">Match</div>
-                    <div className="mt-1 font-display text-base font-medium text-foreground">
-                      {s.type}
+                  <div className="relative flex h-full flex-col">
+                    <div className="text-[10px] uppercase tracking-[0.18em] text-accent">
+                      {p.shariah_compliant ? "Halal ✓" : "Match"}
                     </div>
-                    <p className="mt-2 text-xs text-muted-foreground">{s.why}</p>
-                    <div className="mt-3 text-xs font-medium text-primary">{s.expectedReturn}</div>
-                    <a
-                      href="#"
-                      onClick={(e) => e.preventDefault()}
+                    <div className="mt-1 font-display text-base font-medium text-foreground">
+                      {p.name}
+                    </div>
+                    <p className="mt-2 text-xs text-muted-foreground">{p.description}</p>
+                    <div className="mt-3 text-xs font-medium text-primary">
+                      {p.asset_types.join(" · ")}
+                    </div>
+                    <button
+                      onClick={async () => {
+                        await mizanAPI.trackReferral(
+                          "demo-user",
+                          p.name,
+                          p.min_investment_sar,
+                          "app_opened"
+                        );
+                        window.open(p.app_store_url, "_blank");
+                      }}
                       className="mt-3 inline-flex w-fit items-center text-[11px] font-medium text-accent hover:underline"
                     >
-                      Learn more →
-                    </a>
+                      Invest Now →
+                    </button>
                   </div>
                 </li>
               ))}
